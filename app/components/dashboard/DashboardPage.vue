@@ -40,6 +40,7 @@ const dashboardCategories = [
   {
     label: 'Demande de dossiers',
     cards: [
+      { shortText: 'En attente de dépôt', value: 7, alertesRouges: 0, alertesOranges: 0, auditInitial: 5, auditRenouvellement: 2, auditSuivi: 0, color: 'border-blue-500', bgColor: 'bg-blue-50' },
       { shortText: 'Dépôt en cours', value: 7, alertesRouges: 0, alertesOranges: 0, auditInitial: 5, auditRenouvellement: 2, auditSuivi: 0, color: 'border-blue-500', bgColor: 'bg-blue-50' },
       { shortText: 'En attente validation FEEF', value: 12, alertesRouges: 1, alertesOranges: 0, auditInitial: 8, auditRenouvellement: 3, auditSuivi: 1, color: 'border-green-500', bgColor: 'bg-green-50' },
       { shortText: 'En attente de signature du contrat', value: 4, alertesRouges: 0, alertesOranges: 1, auditInitial: 2, auditRenouvellement: 1, auditSuivi: 1, color: 'border-orange-500', bgColor: 'bg-orange-50' }
@@ -56,6 +57,7 @@ const dashboardCategories = [
   {
     label: 'Audit',
     cards: [
+      { shortText: 'En attente d\'acceptation par l\'OE', value: 4, alertesRouges: 2, alertesOranges: 0, auditInitial: 4, auditRenouvellement: 0, auditSuivi: 0, color: 'border-green-500', bgColor: 'bg-green-50' },
       { shortText: 'En cours de planification', value: 7, alertesRouges: 0, alertesOranges: 0, auditInitial: 4, auditRenouvellement: 2, auditSuivi: 1, color: 'border-green-500', bgColor: 'bg-green-50' },
       { shortText: 'Audit planifié', value: 8, alertesRouges: 0, alertesOranges: 0, auditInitial: 3, auditRenouvellement: 2, auditSuivi: 3, color: 'border-blue-500', bgColor: 'bg-blue-50' },
       { shortText: 'Rapport attendu audit', value: 4, alertesRouges: 1, alertesOranges: 1, auditInitial: 1, auditRenouvellement: 1, auditSuivi: 2, color: 'border-blue-500', bgColor: 'bg-blue-50' }
