@@ -53,6 +53,29 @@ function dismissAlert(alertId: string) {
     }
   }
 }
+
+// Gestion de l'acceptation/refus de l'audit (pour OE)
+const toast = useToast()
+
+function acceptAudit() {
+  toast.add({
+    title: 'Audit accepté',
+    description: `L'audit de ${props.company.raisonSociale.nom} a été accepté.`,
+    color: 'success',
+    icon: 'i-lucide-check-circle'
+  })
+  // TODO: Implémenter la logique d'acceptation de l'audit
+}
+
+function refuseAudit() {
+  toast.add({
+    title: 'Audit refusé',
+    description: `L'audit de ${props.company.raisonSociale.nom} a été refusé.`,
+    color: 'error',
+    icon: 'i-lucide-x-circle'
+  })
+  // TODO: Implémenter la logique de refus de l'audit
+}
 </script>
 
 <template>
@@ -175,6 +198,27 @@ function dismissAlert(alertId: string) {
       </div>
 
     </UCard>
+
+    <!-- Boutons d'action pour OE -->
+    <div v-if="role === 'oe'" class="mb-6 flex gap-3 justify-end">
+      <UButton
+        color="error"
+        variant="outline"
+        size="lg"
+        icon="i-lucide-x-circle"
+        @click="refuseAudit"
+      >
+        Refuser l'audit
+      </UButton>
+      <UButton
+        color="success"
+        size="lg"
+        icon="i-lucide-check-circle"
+        @click="acceptAudit"
+      >
+        Accepter l'audit
+      </UButton>
+    </div>
 
     <!-- Section des alertes -->
     <div v-if="company.workflow.alerts && company.workflow.alerts.length > 0" class="mb-6">
