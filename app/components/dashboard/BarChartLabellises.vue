@@ -25,13 +25,15 @@ const selectedRangeIdx = ref(0);
 
 // Labels et données fictives séparées par type
 const allLabels = [2021, 2022, 2023, 2024, 2025];
-// Données fictives : [Initial, Renouvellement] pour chaque année
+// Données fictives : [Initial, Renouvellement, Suivi] pour chaque année
 const allDataInitial = [2, 10, 15, 20, 3];
 const allDataRenouvellement = [3, 8, 12, 11, 5];
+const allDataSuivi = [4, 6, 10, 14, 7];
 
 const filteredLabels = computed(() => rangesList[selectedRangeIdx.value].years);
 const filteredDataInitial = computed(() => filteredLabels.value.map(y => allDataInitial[allLabels.indexOf(y)]));
 const filteredDataRenouvellement = computed(() => filteredLabels.value.map(y => allDataRenouvellement[allLabels.indexOf(y)]));
+const filteredDataSuivi = computed(() => filteredLabels.value.map(y => allDataSuivi[allLabels.indexOf(y)]));
 
 function prevRange() {
   if (selectedRangeIdx.value > 0) selectedRangeIdx.value--;
@@ -68,6 +70,15 @@ function renderChart() {
         {
           label: 'Renouvellement',
           data: filteredDataRenouvellement.value,
+          backgroundColor: 'rgba(168, 85, 247, 0.7)',
+          borderColor: 'rgba(168, 85, 247, 1)',
+          borderWidth: 1,
+          borderRadius: 6,
+          stack: 'Stack 0',
+        },
+        {
+          label: 'Suivi',
+          data: filteredDataSuivi.value,
           backgroundColor: 'rgba(16, 185, 129, 0.7)',
           borderColor: 'rgba(16, 185, 129, 1)',
           borderWidth: 1,

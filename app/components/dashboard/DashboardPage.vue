@@ -40,32 +40,33 @@ const dashboardCategories = [
   {
     label: 'Demande de dossiers',
     cards: [
-      { shortText: 'Candidature initialisée', value: 7, alertesRouges: 0, alertesOranges: 0, color: 'border-blue-500', bgColor: 'bg-blue-50' },
-      { shortText: 'En attente validation FEEF', value: 12, alertesRouges: 1, alertesOranges: 0, color: 'border-green-500', bgColor: 'bg-green-50' },
-      { shortText: 'En attente de signature du contrat', value: 4, alertesRouges: 0, alertesOranges: 1, color: 'border-orange-500', bgColor: 'bg-orange-50' }
+      { shortText: 'Dépôt en cours', value: 7, alertesRouges: 0, alertesOranges: 0, auditInitial: 5, auditRenouvellement: 2, auditSuivi: 0, color: 'border-blue-500', bgColor: 'bg-blue-50' },
+      { shortText: 'En attente validation FEEF', value: 12, alertesRouges: 1, alertesOranges: 0, auditInitial: 8, auditRenouvellement: 3, auditSuivi: 1, color: 'border-green-500', bgColor: 'bg-green-50' },
+      { shortText: 'En attente de signature du contrat', value: 4, alertesRouges: 0, alertesOranges: 1, auditInitial: 2, auditRenouvellement: 1, auditSuivi: 1, color: 'border-orange-500', bgColor: 'bg-orange-50' }
     ]
   },
-  {
-    label: 'Engagement',
-    cards: [
-      { shortText: 'En attente de devis', value: 5, alertesRouges: 0, alertesOranges: 2, color: 'border-orange-500', bgColor: 'bg-orange-50' },
-      { shortText: 'En attente de signature', value: 3, alertesRouges: 0, alertesOranges: 1, color: 'border-orange-500', bgColor: 'bg-orange-50' },
-      { shortText: 'En planification audit', value: 7, alertesRouges: 0, alertesOranges: 0, color: 'border-green-500', bgColor: 'bg-green-50' }
-    ]
-  },
+  // {
+  //   label: 'Engagement',
+  //   cards: [
+  //     { shortText: 'En attente de devis', value: 5, alertesRouges: 0, alertesOranges: 2, auditInitial: 3, auditRenouvellement: 2, auditSuivi: 0, color: 'border-orange-500', bgColor: 'bg-orange-50' },
+  //     { shortText: 'En attente de signature', value: 3, alertesRouges: 0, alertesOranges: 1, auditInitial: 1, auditRenouvellement: 1, auditSuivi: 1, color: 'border-orange-500', bgColor: 'bg-orange-50' },
+  //     { shortText: 'En planification audit', value: 7, alertesRouges: 0, alertesOranges: 0, auditInitial: 4, auditRenouvellement: 2, auditSuivi: 1, color: 'border-green-500', bgColor: 'bg-green-50' }
+  //   ]
+  // },
   {
     label: 'Audit',
     cards: [
-      { shortText: 'Audit planifié', value: 8, alertesRouges: 0, alertesOranges: 0, color: 'border-blue-500', bgColor: 'bg-blue-50' },
-      { shortText: 'Rapport attendu audit', value: 4, alertesRouges: 1, alertesOranges: 1, color: 'border-blue-500', bgColor: 'bg-blue-50' }
+      { shortText: 'En cours de planification', value: 7, alertesRouges: 0, alertesOranges: 0, auditInitial: 4, auditRenouvellement: 2, auditSuivi: 1, color: 'border-green-500', bgColor: 'bg-green-50' },
+      { shortText: 'Audit planifié', value: 8, alertesRouges: 0, alertesOranges: 0, auditInitial: 3, auditRenouvellement: 2, auditSuivi: 3, color: 'border-blue-500', bgColor: 'bg-blue-50' },
+      { shortText: 'Rapport attendu audit', value: 4, alertesRouges: 1, alertesOranges: 1, auditInitial: 1, auditRenouvellement: 1, auditSuivi: 2, color: 'border-blue-500', bgColor: 'bg-blue-50' }
     ]
   },
   {
     label: 'Decision',
     cards: [
-      { shortText: 'Rapport envoyé', value: 2, alertesRouges: 0, alertesOranges: 1, color: 'border-purple-500', bgColor: 'bg-purple-50' },
-      { shortText: 'Plan d’action en attente', value: 6, alertesRouges: 2, alertesOranges: 0, color: 'border-orange-500', bgColor: 'bg-orange-50' },
-      { shortText: 'En attente attestation', value: 1, alertesRouges: 0, alertesOranges: 0, color: 'border-green-500', bgColor: 'bg-green-50' }
+      { shortText: 'Rapport envoyé', value: 2, alertesRouges: 0, alertesOranges: 1, auditInitial: 1, auditRenouvellement: 0, auditSuivi: 1, color: 'border-purple-500', bgColor: 'bg-purple-50' },
+      { shortText: "Plan d'action en attente", value: 6, alertesRouges: 2, alertesOranges: 0, auditInitial: 2, auditRenouvellement: 2, auditSuivi: 2, color: 'border-orange-500', bgColor: 'bg-orange-50' },
+      { shortText: 'En attente attestation', value: 1, alertesRouges: 0, alertesOranges: 0, auditInitial: 0, auditRenouvellement: 1, auditSuivi: 0, color: 'border-green-500', bgColor: 'bg-green-50' }
     ]
   }
 ];
@@ -92,8 +93,12 @@ const categoryTotals = dashboardCategories.map(cat => cat.cards.reduce((sum, car
         <!-- Bloc infos entreprises, import et export -->
         <div class="flex flex-row gap-4 px-4 mb-4">
           <div class="bg-white rounded-xl shadow p-4 flex-1 flex flex-col items-center justify-center">
-            <span class="text-gray-500 text-sm mb-1">Nombre d'entreprises</span>
+            <span class="text-gray-500 text-sm mb-1">Nombre d'entités</span>
             <span class="text-2xl font-bold text-primary-600">128</span>
+          </div>
+          <div class="bg-white rounded-xl shadow p-4 flex-1 flex flex-col items-center justify-center">
+            <span class="text-gray-500 text-sm mb-1 text-center">Écart moyen audit planifié/réel</span>
+            <span class="text-base font-semibold text-gray-800">+3,5 jours</span>
           </div>
           <template v-if="props.role === 'oe' || (selectedOE && selectedOE !== 'all')">
             <div class="bg-white rounded-xl shadow p-4 flex-1 flex flex-col items-center justify-center">
@@ -107,7 +112,7 @@ const categoryTotals = dashboardCategories.map(cat => cat.cards.reduce((sum, car
           </template>
         </div>
         <!-- Dossiers en cours (sans titre) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 px-4 justify-start">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 px-4 justify-start">
           <div v-for="(cat, i) in dashboardCategories" :key="cat.label" class="flex flex-col">
             <h2 class="text-lg font-bold text-gray-800 mb-2 text-center">
               <span class="text-primary-600">{{ categoryTotals[i] }}</span>

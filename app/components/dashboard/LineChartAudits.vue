@@ -24,7 +24,7 @@ function nextYear() {
 }
 
 
-// Données fictives par année et par type (Initial/Renouvellement)
+// Données fictives par année et par type (Initial/Renouvellement/Suivi)
 const auditsDataInitialByYear: Record<number, number[]> = {
   2023: [1, 1, 1, 2, 1, 2, 3, 2, 1, 2, 1, 1],
   2024: [1, 2, 2, 3, 2, 3, 4, 3, 2, 3, 2, 1],
@@ -34,6 +34,11 @@ const auditsDataRenouvByYear: Record<number, number[]> = {
   2023: [0, 1, 1, 1, 1, 2, 2, 1, 1, 2, 1, 0],
   2024: [1, 1, 2, 2, 1, 3, 3, 2, 2, 3, 1, 1],
   2025: [1, 2, 2, 3, 2, 3, 3, 3, 3, 3, 2, 1],
+};
+const auditsDataSuiviByYear: Record<number, number[]> = {
+  2023: [1, 0, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1],
+  2024: [1, 1, 1, 2, 2, 2, 2, 3, 2, 2, 2, 1],
+  2025: [2, 1, 2, 2, 3, 2, 3, 3, 3, 2, 3, 2],
 };
 
 const labels = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
@@ -59,6 +64,15 @@ function renderChart() {
         {
           label: 'Renouvellement',
           data: auditsDataRenouvByYear[selectedYear.value ?? yearsList[0]] ?? [],
+          backgroundColor: 'rgba(168, 85, 247, 0.7)',
+          borderColor: 'rgba(168, 85, 247, 1)',
+          borderWidth: 2,
+          borderRadius: 6,
+          stack: 'Stack 0',
+        },
+        {
+          label: 'Suivi',
+          data: auditsDataSuiviByYear[selectedYear.value ?? yearsList[0]] ?? [],
           backgroundColor: 'rgba(16, 185, 129, 0.7)',
           borderColor: 'rgba(16, 185, 129, 1)',
           borderWidth: 2,
