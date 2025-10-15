@@ -102,6 +102,10 @@ const categoryTotals = dashboardCategories.map(cat => cat.cards.reduce((sum, car
             <span class="text-gray-500 text-sm mb-1 text-center">Écart moyen audit planifié/réel</span>
             <span class="text-base font-semibold text-gray-800">+3,5 jours</span>
           </div>
+          <div class="bg-white rounded-xl shadow p-4 flex-1 flex flex-col items-center justify-center">
+            <span class="text-gray-500 text-sm mb-1 text-center">Durée moyenne d'acceptation par l'OE</span>
+            <span class="text-base font-semibold text-gray-800">7,2 jours</span>
+          </div>
           <template v-if="props.role === 'oe' || (selectedOE && selectedOE !== 'all')">
             <div class="bg-white rounded-xl shadow p-4 flex-1 flex flex-col items-center justify-center">
               <span class="text-gray-500 text-sm mb-1">Dernier import</span>
