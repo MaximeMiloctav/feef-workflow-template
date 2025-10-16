@@ -89,11 +89,23 @@ function renderChart() {
         legend: { display: true },
         tooltip: { enabled: true },
         datalabels: {
-          anchor: 'center',
-          align: 'center',
-          color: '#fff',
-          font: { weight: 'bold', size: 14 },
-          formatter: function(value: number) { return value; }
+          display: function(context: any) {
+            // Afficher les totaux seulement sur le dernier dataset (Suivi) au sommet
+            return context.datasetIndex === 2;
+          },
+          anchor: 'end',
+          align: 'top',
+          color: '#374151',
+          font: { weight: 'bold', size: 12 },
+          formatter: function(value: number, context: any) {
+            // Calculer le total de tous les datasets pour cette colonne
+            const dataIndex = context.dataIndex;
+            const datasets = context.chart.data.datasets;
+            const total = datasets.reduce((sum: number, dataset: any) => {
+              return sum + (dataset.data[dataIndex] || 0);
+            }, 0);
+            return total;
+          }
         } as any
       },
       scales: {

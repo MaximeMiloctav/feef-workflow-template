@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue';
 import { Chart, BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
+// @ts-ignore
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import type { SelectItem } from '@nuxt/ui';
 
-Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
+Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend, ChartDataLabels);
 
 const chartRef = ref<HTMLCanvasElement | null>(null);
 
@@ -93,7 +95,26 @@ function renderChart() {
       layout: { padding: 16 },
       plugins: {
         legend: { display: true },
-        tooltip: { enabled: true }
+        tooltip: { enabled: true },
+        datalabels: {
+          display: function(context: any) {
+            // Afficher les totaux seulement sur le dernier dataset (Suivi) au sommet
+            return context.datasetIndex === 2;
+          },
+          anchor: 'end',
+          align: 'top',
+          color: '#374151',
+          font: { weight: 'bold', size: 12 },
+          formatter: function(value: number, context: any) {
+            // Calculer le total de tous les datasets pour cette colonne
+            const dataIndex = context.dataIndex;
+            const datasets = context.chart.data.datasets;
+            const total = datasets.reduce((sum: number, dataset: any) => {
+              return sum + (dataset.data[dataIndex] || 0);
+            }, 0);
+            return total;
+          }
+        } as any
       },
       scales: {
         x: {

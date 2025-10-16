@@ -18,16 +18,31 @@ const dossiersFinalisesParAn = [
 
 const selectedAnnee = ref(dossiersFinalisesParAn.length > 0 ? dossiersFinalisesParAn[dossiersFinalisesParAn.length - 1].annee : 0)
 
-// Données fictives pour la barre de progression
+// Données fictives pour la barre de progression détaillée
 const dossierStats = {
-  attente: 14,
-  encours: 22,
-  finalise: 8
+  // En attente
+  depotDossier: 5,
+  validationFeef: 4, 
+  signatureDevis: 5,
+  // En cours
+  planification: 8,
+  audit: 9,
+  finalisation: 5
 }
-const totalDossiers = dossierStats.attente + dossierStats.encours + dossierStats.finalise
-const attentePct = Math.round((dossierStats.attente / totalDossiers) * 100)
-const encoursPct = Math.round((dossierStats.encours / totalDossiers) * 100)
-const finalisePct = 100 - attentePct - encoursPct
+
+const totalDossiers = Object.values(dossierStats).reduce((sum, val) => sum + val, 0)
+
+// Calcul des pourcentages pour chaque étape
+const depotPct = Math.round((dossierStats.depotDossier / totalDossiers) * 100)
+const validationPct = Math.round((dossierStats.validationFeef / totalDossiers) * 100)
+const devisPct = Math.round((dossierStats.signatureDevis / totalDossiers) * 100)
+const planificationPct = Math.round((dossierStats.planification / totalDossiers) * 100)
+const auditPct = Math.round((dossierStats.audit / totalDossiers) * 100)
+const finalisationPct = 100 - depotPct - validationPct - devisPct - planificationPct - auditPct
+
+// Totaux par catégorie principale
+const totalAttente = dossierStats.depotDossier + dossierStats.validationFeef + dossierStats.signatureDevis
+const totalEnCours = dossierStats.planification + dossierStats.audit + dossierStats.finalisation
 
 const oeOptions = ref<SelectItem[]>([
   { label: 'Tous', value: 'all' },
@@ -40,10 +55,9 @@ const dashboardCategories = [
   {
     label: 'Demande de dossiers',
     cards: [
-      { shortText: 'En attente de dépôt', value: 7, alertesRouges: 0, alertesOranges: 0, auditInitial: 5, auditRenouvellement: 2, auditSuivi: 0, color: 'border-blue-500', bgColor: 'bg-blue-50' },
       { shortText: 'Dépôt en cours', value: 7, alertesRouges: 0, alertesOranges: 0, auditInitial: 5, auditRenouvellement: 2, auditSuivi: 0, color: 'border-blue-500', bgColor: 'bg-blue-50' },
-      { shortText: 'En attente validation FEEF', value: 12, alertesRouges: 1, alertesOranges: 0, auditInitial: 8, auditRenouvellement: 3, auditSuivi: 1, color: 'border-green-500', bgColor: 'bg-green-50' },
-      { shortText: 'En attente de signature du contrat', value: 4, alertesRouges: 0, alertesOranges: 1, auditInitial: 2, auditRenouvellement: 1, auditSuivi: 1, color: 'border-orange-500', bgColor: 'bg-orange-50' }
+      { shortText: 'En attente de signature du contrat', value: 4, alertesRouges: 0, alertesOranges: 1, auditInitial: 2, auditRenouvellement: 1, auditSuivi: 1, color: 'border-orange-500', bgColor: 'bg-orange-50' },
+      { shortText: 'En attente validation FEEF', value: 11, alertesRouges: 1, alertesOranges: 0, auditInitial: 8, auditRenouvellement: 3, auditSuivi: 0, color: 'border-green-500', bgColor: 'bg-green-50' },
     ]
   },
   // {
@@ -100,7 +114,11 @@ const categoryTotals = dashboardCategories.map(cat => cat.cards.reduce((sum, car
           </div>
           <div class="bg-white rounded-xl shadow p-4 flex-1 flex flex-col items-center justify-center">
             <span class="text-gray-500 text-sm mb-1 text-center">Écart moyen audit planifié/réel</span>
-            <span class="text-base font-semibold text-gray-800">+3,5 jours</span>
+            <span class="text-base font-semibold text-gray-800">+3,5 mois</span>
+          </div>
+          <div class="bg-white rounded-xl shadow p-4 flex-1 flex flex-col items-center justify-center">
+            <span class="text-gray-500 text-sm mb-1 text-center">Durée moyenne du processus</span>
+            <span class="text-base font-semibold text-gray-800">6 mois</span>
           </div>
           <div class="bg-white rounded-xl shadow p-4 flex-1 flex flex-col items-center justify-center">
             <span class="text-gray-500 text-sm mb-1 text-center">Durée moyenne d'acceptation par l'OE</span>
@@ -136,29 +154,69 @@ const categoryTotals = dashboardCategories.map(cat => cat.cards.reduce((sum, car
             </div>
           </div>
         </div>
-        <!-- Barre de progression état des dossiers -->
+        <!-- Barre de progression détaillée des dossiers -->
         <div class="w-full px-4 mt-6">
-          <h2 class="text-lg font-bold mb-2 text-center">État des dossiers</h2>
-          <div class="relative w-full h-6 bg-gray-100 rounded-full shadow-lg overflow-hidden flex text-xs font-bold">
-            <div class="h-full flex items-center justify-center text-orange-900 transition-all duration-500"
-              :style="`width: ${attentePct}%; background: #fed7aa`">
-              <span v-if="attentePct > 10" class="w-full text-center">
-                <span class="font-medium text-gray-600 mr-1">En attente</span>
-                {{ dossierStats.attente }}<span class="opacity-70">&nbsp;({{ attentePct }}%)</span>
+          <h2 class="text-lg font-bold mb-4 text-center">État des dossiers ({{ totalDossiers }} dossiers)</h2>
+          
+          <!-- Totaux par catégorie -->
+          <div class="flex justify-center gap-8 mb-4">
+            <div class="text-center">
+              <div class="text-2xl font-bold text-orange-600">{{ totalAttente }}</div>
+              <div class="text-sm text-gray-600">En attente</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-blue-600">{{ totalEnCours }}</div>
+              <div class="text-sm text-gray-600">En cours</div>
+            </div>
+          </div>
+          
+          <!-- Barre de progression détaillée -->
+          <div class="relative w-full h-8 bg-gray-100 rounded-full shadow-lg overflow-hidden flex text-xs font-medium">
+            <!-- En attente - Dépôt dossier -->
+            <div class="h-full flex items-center justify-center text-orange-900 transition-all duration-500 border-r border-white"
+              :style="`width: ${depotPct}%; background: #fed7aa`">
+              <span v-if="depotPct > 8" class="w-full text-center px-1">
+                Dépôt {{ dossierStats.depotDossier }}
               </span>
             </div>
+            
+            <!-- En attente - Validation FEEF -->
+            <div class="h-full flex items-center justify-center text-orange-900 transition-all duration-500 border-r border-white"
+              :style="`width: ${validationPct}%; background: #fdba74`">
+              <span v-if="validationPct > 8" class="w-full text-center px-1">
+                Validation {{ dossierStats.validationFeef }}
+              </span>
+            </div>
+            
+            <!-- En attente - Signature devis -->
+            <div class="h-full flex items-center justify-center text-orange-900 transition-all duration-500 border-r-2 border-gray-300"
+              :style="`width: ${devisPct}%; background: #fb923c`">
+              <span v-if="devisPct > 8" class="w-full text-center px-1">
+                Devis {{ dossierStats.signatureDevis }}
+              </span>
+            </div>
+            
+            <!-- En cours - Planification -->
+            <div class="h-full flex items-center justify-center text-blue-900 transition-all duration-500 border-r border-white"
+              :style="`width: ${planificationPct}%; background: #bfdbfe`">
+              <span v-if="planificationPct > 8" class="w-full text-center px-1">
+                Planif. {{ dossierStats.planification }}
+              </span>
+            </div>
+            
+            <!-- En cours - Audit -->
+            <div class="h-full flex items-center justify-center text-blue-900 transition-all duration-500 border-r border-white"
+              :style="`width: ${auditPct}%; background: #93c5fd`">
+              <span v-if="auditPct > 8" class="w-full text-center px-1">
+                Audit {{ dossierStats.audit }}
+              </span>
+            </div>
+            
+            <!-- En cours - Finalisation -->
             <div class="h-full flex items-center justify-center text-blue-900 transition-all duration-500"
-              :style="`width: ${encoursPct}%; background: #bfdbfe`">
-              <span v-if="encoursPct > 10" class="w-full text-center">
-                <span class="font-medium text-gray-600 mr-1">En cours</span>
-                {{ dossierStats.encours }}<span class="opacity-70">&nbsp;({{ encoursPct }}%)</span>
-              </span>
-            </div>
-            <div class="h-full flex items-center justify-center text-green-900 transition-all duration-500"
-              :style="`width: ${finalisePct}%; background: #bbf7d0`">
-              <span v-if="finalisePct > 10" class="w-full text-center">
-                <span class="font-medium text-gray-600 mr-1">Finalisé</span>
-                {{ dossierStats.finalise }}<span class="opacity-70">&nbsp;({{ finalisePct }}%)</span>
+              :style="`width: ${finalisationPct}%; background: #60a5fa`">
+              <span v-if="finalisationPct > 8" class="w-full text-center px-1">
+                Final. {{ dossierStats.finalisation }}
               </span>
             </div>
           </div>
