@@ -89,6 +89,89 @@ const dashboardCategories = [
 
 const categoryTotals = dashboardCategories.map(cat => cat.cards.reduce((sum, card) => sum + card.value, 0));
 
+// Fonction pour calculer la priorité et les couleurs basées sur la date limite
+const getPrioriteAction = (dateLimite: string) => {
+  const aujourdhui = new Date()
+  const dateL = new Date(dateLimite)
+  const diffJours = Math.ceil((dateL.getTime() - aujourdhui.getTime()) / (1000 * 3600 * 24))
+
+  if (diffJours < 0) {
+    // Date dépassée - ROUGE
+    return {
+      priorite: 3,
+      color: 'border-red-500',
+      bgColor: 'bg-red-50'
+    }
+  } else if (diffJours <= 7) {
+    // Moins d'une semaine - ORANGE
+    return {
+      priorite: 2,
+      color: 'border-orange-500',
+      bgColor: 'bg-orange-50'
+    }
+  } else {
+    // Plus d'une semaine - VERT
+    return {
+      priorite: 1,
+      color: 'border-green-500',
+      bgColor: 'bg-green-50'
+    }
+  }
+}
+
+// Données brutes des actions par acteur (avec dates limites)
+const actionsParActeurRaw = {
+  feef: [
+    { title: 'Valider le dépôt d\'un dossier', linkedTo: 'SARL Boulangerie Martin', linkedToType: 'entity' as const, dateLimite: '2025-10-18' }, // Date dépassée
+    { title: 'Valider le dépôt d\'un dossier', linkedTo: 'SAS TechStart', linkedToType: 'entity' as const, dateLimite: '2025-10-24' }, // Dans 4 jours
+    { title: 'Valider la labellisation d\'un Audit', linkedTo: 'Audit #2024-A-0125', linkedToType: 'audit' as const, dateLimite: '2025-10-19' }, // Date dépassée
+    { title: 'Valider la labellisation d\'un Audit', linkedTo: 'Audit #2024-A-0134', linkedToType: 'audit' as const, dateLimite: '2025-11-05' }, // Dans 16 jours
+    { title: 'Valider le dépôt d\'un dossier', linkedTo: 'EURL Garage Dupont', linkedToType: 'entity' as const, dateLimite: '2025-10-26' } // Dans 6 jours
+  ],
+  oe: [
+    { title: 'Accepter un audit', linkedTo: 'Audit #2025-A-0012', linkedToType: 'audit' as const, dateLimite: '2025-10-17' }, // Date dépassée
+    { title: 'Accepter un audit', linkedTo: 'Audit #2025-A-0015', linkedToType: 'audit' as const, dateLimite: '2025-10-22' }, // Dans 2 jours
+    { title: 'Mettre en ligne le plan et les dates d\'audit', linkedTo: 'Audit #2024-A-0198', linkedToType: 'audit' as const, dateLimite: '2025-11-10' }, // Dans 21 jours
+    { title: 'Mettre en ligne le rapport d\'audit et les scores', linkedTo: 'Audit #2024-A-0156', linkedToType: 'audit' as const, dateLimite: '2025-10-25' }, // Dans 5 jours
+    { title: 'Valider le plan d\'action correctif', linkedTo: 'Audit #2024-A-0142', linkedToType: 'audit' as const, dateLimite: '2025-11-02' }, // Dans 13 jours
+    { title: 'Mettre en ligne l\'avis de labellisation', linkedTo: 'Audit #2024-A-0133', linkedToType: 'audit' as const, dateLimite: '2025-10-16' } // Date dépassée
+  ],
+  entites: [
+    { title: 'Déposer son dossier', linkedTo: 'SARL Martin & Fils', linkedToType: 'entity' as const, dateLimite: '2025-10-23' }, // Dans 3 jours
+    { title: 'Mettre une nouvelle version des documents demandés', linkedTo: 'SAS InnoTech', linkedToType: 'entity' as const, dateLimite: '2025-10-15' }, // Date dépassée
+    { title: 'Signer un contrat avec la FEEF', linkedTo: 'EURL Services Plus', linkedToType: 'entity' as const, dateLimite: '2025-11-08' }, // Dans 19 jours
+    { title: 'Mettre en ligne son plan d\'action correctif', linkedTo: 'SA TechGroup', linkedToType: 'entity' as const, dateLimite: '2025-10-27' }, // Dans 7 jours
+    { title: 'Mettre à jour les informations de son dossier', linkedTo: 'SARL Boulangerie Martin', linkedToType: 'entity' as const, dateLimite: '2025-10-21' } // Dans 1 jour
+  ]
+}
+
+// Traitement des actions avec calcul de priorité et tri
+const actionsParActeur = computed(() => {
+  const processActions = (actions: typeof actionsParActeurRaw.feef) => {
+    return actions
+      .map(action => {
+        const priorite = getPrioriteAction(action.dateLimite)
+        return {
+          ...action,
+          ...priorite
+        }
+      })
+      .sort((a, b) => b.priorite - a.priorite) // Tri par priorité décroissante (rouge > orange > vert)
+  }
+
+  return {
+    feef: processActions(actionsParActeurRaw.feef),
+    oe: processActions(actionsParActeurRaw.oe),
+    entites: processActions(actionsParActeurRaw.entites)
+  }
+})
+
+// Gestion des onglets
+const tabs = [
+  { value: 'etapes', label: 'Étapes des dossiers', slot: 'etapes' },
+  { value: 'actions', label: 'Actions', slot: 'actions' }
+]
+
 </script>
 
 <template>
@@ -135,24 +218,100 @@ const categoryTotals = dashboardCategories.map(cat => cat.cards.reduce((sum, car
             </div>
           </template>
         </div>
-        <!-- Dossiers en cours (sans titre) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 px-4 justify-start">
-          <div v-for="(cat, i) in dashboardCategories" :key="cat.label" class="flex flex-col">
-            <h2 class="text-lg font-bold text-gray-800 mb-2 text-center">
-              <span class="text-primary-600">{{ categoryTotals[i] }}</span>
-              &nbsp;{{ cat.label }}
-            </h2>
-            <div class="flex flex-col gap-3">
-              <DashboardCard
-                v-for="(card, j) in cat.cards"
-                :key="j"
-                v-bind="card"
-                :lastValue="j % 3 === 0 ? undefined : card.value - (j % 2 === 0 ? 2 : -1)"
-                :lastDate="j % 3 === 0 ? undefined : '20/09/2025 à 10:15'"
-                :trend="j % 3 === 0 ? undefined : (card.value > (card.value - (j % 2 === 0 ? 2 : -1)) ? 'up' : 'down')"
-              />
-            </div>
-          </div>
+        <!-- Système d'onglets pour Étapes des dossiers et Actions -->
+        <div class="px-4">
+          <UTabs :items="tabs" :default-value="'etapes'">
+            <!-- Onglet Étapes des dossiers -->
+            <template #etapes>
+              <div class="pt-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 justify-start">
+                  <div v-for="(cat, i) in dashboardCategories" :key="cat.label" class="flex flex-col">
+                    <h2 class="text-lg font-bold text-gray-800 mb-2 text-center">
+                      <span class="text-primary-600">{{ categoryTotals[i] }}</span>
+                      &nbsp;{{ cat.label }}
+                    </h2>
+                    <div class="flex flex-col gap-3">
+                      <DashboardCard
+                        v-for="(card, j) in cat.cards"
+                        :key="j"
+                        v-bind="card"
+                        :lastValue="j % 3 === 0 ? undefined : card.value - (j % 2 === 0 ? 2 : -1)"
+                        :lastDate="j % 3 === 0 ? undefined : '20/09/2025 à 10:15'"
+                        :trend="j % 3 === 0 ? undefined : (card.value > (card.value - (j % 2 === 0 ? 2 : -1)) ? 'up' : 'down')"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <!-- Onglet Actions -->
+            <template #actions>
+              <div class="pt-4">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  <!-- Colonne Actions FEEF -->
+                  <div class="flex flex-col">
+                    <h2 class="text-lg font-bold text-gray-800 mb-3 text-center">
+                      <span class="text-primary-600">{{ actionsParActeur.feef.length }}</span>
+                      &nbsp;Actions FEEF
+                    </h2>
+                    <div class="flex flex-col gap-3">
+                      <ActionCard
+                        v-for="(action, idx) in actionsParActeur.feef"
+                        :key="idx"
+                        :title="action.title"
+                        :linked-to="action.linkedTo"
+                        :linked-to-type="action.linkedToType"
+                        :date-limite="action.dateLimite"
+                        :color="action.color"
+                        :bg-color="action.bgColor"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Colonne Actions OE -->
+                  <div class="flex flex-col">
+                    <h2 class="text-lg font-bold text-gray-800 mb-3 text-center">
+                      <span class="text-primary-600">{{ actionsParActeur.oe.length }}</span>
+                      &nbsp;Actions OE
+                    </h2>
+                    <div class="flex flex-col gap-3">
+                      <ActionCard
+                        v-for="(action, idx) in actionsParActeur.oe"
+                        :key="idx"
+                        :title="action.title"
+                        :linked-to="action.linkedTo"
+                        :linked-to-type="action.linkedToType"
+                        :date-limite="action.dateLimite"
+                        :color="action.color"
+                        :bg-color="action.bgColor"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Colonne Actions Entités -->
+                  <div class="flex flex-col">
+                    <h2 class="text-lg font-bold text-gray-800 mb-3 text-center">
+                      <span class="text-primary-600">{{ actionsParActeur.entites.length }}</span>
+                      &nbsp;Actions Entités
+                    </h2>
+                    <div class="flex flex-col gap-3">
+                      <ActionCard
+                        v-for="(action, idx) in actionsParActeur.entites"
+                        :key="idx"
+                        :title="action.title"
+                        :linked-to="action.linkedTo"
+                        :linked-to-type="action.linkedToType"
+                        :date-limite="action.dateLimite"
+                        :color="action.color"
+                        :bg-color="action.bgColor"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </UTabs>
         </div>
         <!-- Barre de progression détaillée des dossiers -->
         <div class="w-full px-4 mt-6">

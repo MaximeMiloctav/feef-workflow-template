@@ -27,16 +27,6 @@ defineProps({
             name="i-lucide-building-2" 
             class="w-16 h-16 text-primary"
           />
-          <UButton
-            v-if="role === 'company'"
-            color="neutral"
-            variant="outline"
-            size="sm"
-            icon="i-lucide-plus"
-            class="text-xs"
-          >
-            Nouveau dossier
-          </UButton>
         </div>
         <!-- Informations à droite -->
         <div class="flex-1 grid grid-cols-3 gap-6">
